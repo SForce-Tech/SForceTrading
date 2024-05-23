@@ -74,8 +74,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        this.password = encoder.encode(password);
+        this.password = password; // Do not encode here
     }
 
     public String getAddressLine1() {
@@ -133,5 +132,4 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
-
 }
