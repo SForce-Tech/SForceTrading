@@ -1,4 +1,4 @@
-package com.gymbuddy.gymbuddy;
+package com.sforce.gymbuddy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
