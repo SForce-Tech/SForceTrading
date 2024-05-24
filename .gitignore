@@ -35,5 +35,6 @@ build/
 # Ignore H2 database files
 *.mv.db
 *.h2.db
+*.trace.db
 
 /*.log
