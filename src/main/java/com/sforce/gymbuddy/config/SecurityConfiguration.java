@@ -1,6 +1,9 @@
 package com.sforce.gymbuddy.config;
 
+import com.sforce.gymbuddy.filter.JwtRequestFilter;
 import com.sforce.gymbuddy.service.CustomUserDetailsService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Configuration class for Spring Security.
@@ -24,14 +29,18 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
 
     /**
      * Constructor to inject CustomUserDetailsService.
      *
      * @param customUserDetailsService the custom user details service
+     * @param jwtRequestFilter         the jwt request filter service
      */
-    public SecurityConfiguration(CustomUserDetailsService customUserDetailsService) {
+    @Autowired
+    public SecurityConfiguration(CustomUserDetailsService customUserDetailsService, JwtRequestFilter jwtRequestFilter) {
         this.customUserDetailsService = customUserDetailsService;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     /**
@@ -46,16 +55,16 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager)
             throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for H2 console access
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/h2-console/**", "/api/users/register", "/api/users/login").permitAll()
                         .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(form -> form.permitAll())
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.disable())) // Disable frame options for H2 console
-                .httpBasic(Customizer.withDefaults()) // Enable Basic Authentication
-                .authenticationManager(authManager); // Ensure the custom auth manager is used
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+                .httpBasic(Customizer.withDefaults())
+                .authenticationManager(authManager)
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

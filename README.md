@@ -1,4 +1,3 @@
-
 Certainly! Here's a suggested `README.md` for your project, documenting the setup, configuration, and main features:
 
 # GymBuddy
@@ -148,6 +147,27 @@ Two user details services are used:
 - `CustomUserDetailsService`: Loads user-specific data from the database.
 - `InMemoryUserDetailsManager`: Manages a user stored in memory for administrative purposes.
 
+## JWT Authentication
+
+The application supports JWT authentication. Use the following steps to authenticate via JWT:
+
+1. Obtain a JWT token by sending a POST request to `/api/users/login` with valid credentials.
+2. Include the JWT token in the `Authorization` header for subsequent requests.
+
+### Example
+
+**Request**:
+
+````http
+POST /api/users/login
+Content-Type: application/json
+
+{
+  "username": "theAdmin",
+  "password": "qwerty"
+}
+
+
 ### Password Encoding
 
 BCrypt is used for password encoding. The `PasswordEncoder` bean is defined in the `SecurityConfiguration` class.
@@ -158,7 +178,7 @@ Run the tests with Maven:
 
 ```sh
 mvn test
-```
+````
 
 ## Contributing
 
