@@ -5,6 +5,8 @@ import com.sforce.gymbuddy.model.User;
 import com.sforce.gymbuddy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.User.UserBuilder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -132,5 +134,18 @@ public class UserService {
         userDTO.setZipCode(user.getZipCode());
         userDTO.setCountry(user.getCountry());
         return userDTO;
+    }
+
+    /**
+     * Converts a User entity to a UserDetails object.
+     *
+     * @param user the user entity
+     * @return the converted UserDetails
+     */
+    public UserDetails convertToUserDetails(User user) {
+        UserBuilder builder = org.springframework.security.core.userdetails.User.withUsername(user.getUsername());
+        builder.password(user.getPassword());
+        builder.roles("USER"); // Customize roles as needed
+        return builder.build();
     }
 }
