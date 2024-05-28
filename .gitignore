@@ -38,3 +38,7 @@ build/
 *.trace.db
 
 /*.log
+
+# Certificate and key files
+*.p12
+*.pem

@@ -3,16 +3,23 @@ package com.sforce.gymbuddy.controller;
 import com.sforce.gymbuddy.dto.UserDTO;
 import com.sforce.gymbuddy.model.User;
 import com.sforce.gymbuddy.service.UserService;
+import com.sforce.gymbuddy.util.JwtUtil;
+import com.sforce.gymbuddy.util.RSAUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Base64;
+
+import java.security.PrivateKey;
 
 /**
  * REST controller for managing users.
@@ -22,15 +29,22 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final PrivateKey privateKey;
 
     /**
-     * Constructs a new UserController with the specified UserService.
+     * Constructs a new UserController with the specified UserService, JwtUtil, and
+     * PrivateKey.
      *
      * @param userService the user service to use for user operations
+     * @param jwtUtil     the JWT utility to use for generating tokens
+     * @param privateKey  the RSA private key for decrypting passwords
      */
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil, PrivateKey privateKey) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.privateKey = privateKey;
     }
 
     /**
@@ -98,20 +112,33 @@ public class UserController {
      *
      * @param loginRequest the user login request containing the username and
      *                     password
-     * @return a ResponseEntity containing a success message or an unauthorized
-     *         status if authentication fails
+     * @return a ResponseEntity containing a JWT token or an unauthorized status if
+     *         authentication fails
      */
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
         if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password must not be null");
         }
+        try {
+            // Decrypt the password
+            String decryptedPassword = RSAUtil.decrypt(Base64.getDecoder().decode(loginRequest.getPassword()),
+                    privateKey);
+            loginRequest.setPassword(decryptedPassword);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid password encryption");
+        }
+
         Optional<User> userOptional = userService.authenticateUser(loginRequest.getUsername(),
                 loginRequest.getPassword());
         if (userOptional.isPresent()) {
-            return ResponseEntity.ok("Login successful");
+            // Convert User to UserDetails
+            UserDetails userDetails = userService.convertToUserDetails(userOptional.get());
+            String token = jwtUtil.generateToken(userDetails);
+            return ResponseEntity.ok(token);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+
 }
