@@ -57,7 +57,8 @@ public class SecurityConfiguration {
             throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/h2-console/**", "/api/users/register", "/api/users/login").permitAll()
+                        .requestMatchers("/h2-console/**", "/api/users/register", "/api/users/login", "/api/public-key")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(form -> form.permitAll())
