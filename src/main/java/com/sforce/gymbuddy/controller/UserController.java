@@ -1,19 +1,24 @@
 package com.sforce.gymbuddy.controller;
 
+import com.sforce.gymbuddy.dto.UserCreateDTO;
 import com.sforce.gymbuddy.dto.UserDTO;
 import com.sforce.gymbuddy.model.User;
 import com.sforce.gymbuddy.service.UserService;
 import com.sforce.gymbuddy.util.JwtUtil;
 import com.sforce.gymbuddy.util.RSAUtil;
+import com.sforce.gymbuddy.validation.ValidationGroups;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,11 +97,26 @@ public class UserController {
      *         registration fails
      */
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@Valid @RequestBody User user) {
-        if (user == null || user.getEmail() == null || user.getPassword() == null) {
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+        if (userCreateDTO == null || userCreateDTO.getEmail() == null || userCreateDTO.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and password must not be null");
         }
         try {
+            User user = new User(); // Create a User entity from UserCreateDTO
+            // Map fields from UserCreateDTO to User entity
+            user.setFirstName(userCreateDTO.getFirstName());
+            user.setLastName(userCreateDTO.getLastName());
+            user.setEmail(userCreateDTO.getEmail());
+            user.setUsername(userCreateDTO.getUsername());
+            user.setPassword(userCreateDTO.getPassword());
+            user.setPhone(userCreateDTO.getPhone());
+            user.setAddressLine1(userCreateDTO.getAddressLine1());
+            user.setAddressLine2(userCreateDTO.getAddressLine2());
+            user.setCity(userCreateDTO.getCity());
+            user.setState(userCreateDTO.getState());
+            user.setZipCode(userCreateDTO.getZipCode());
+            user.setCountry(userCreateDTO.getCountry());
+
             User savedUser = userService.saveUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToDTO(savedUser));
         } catch (DataIntegrityViolationException e) {
@@ -138,6 +158,60 @@ public class UserController {
             return ResponseEntity.ok(token);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
+    }
+
+    /**
+     * Updates an existing user.
+     *
+     * @param user the user details to update
+     * @return a ResponseEntity containing the updated user or an error status if
+     *         update fails
+     */
+    @PutMapping("/update")
+    public ResponseEntity<Object> updateUser(@Valid @RequestBody UserDTO userDTO) {
+        if (userDTO == null || userDTO.getId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID must not be null");
+        }
+        try {
+            User user = new User(); // Create a User entity from UserDTO
+            // Map fields from UserDTO to User entity
+            user.setId(userDTO.getId());
+            user.setFirstName(userDTO.getFirstName());
+            user.setLastName(userDTO.getLastName());
+            user.setEmail(userDTO.getEmail());
+            user.setUsername(userDTO.getUsername());
+            user.setPhone(userDTO.getPhone());
+            user.setAddressLine1(userDTO.getAddressLine1());
+            user.setAddressLine2(userDTO.getAddressLine2());
+            user.setCity(userDTO.getCity());
+            user.setState(userDTO.getState());
+            user.setZipCode(userDTO.getZipCode());
+            user.setCountry(userDTO.getCountry());
+
+            User updatedUser = userService.updateUser(user);
+            return ResponseEntity.ok(userService.convertToDTO(updatedUser));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("A user with the same email or username already exists.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An error occurred while updating the user");
+        }
+    }
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param userId the ID of the user to delete
+     * @return a ResponseEntity with a status of OK or NOT FOUND
+     */
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
         }
     }
 
