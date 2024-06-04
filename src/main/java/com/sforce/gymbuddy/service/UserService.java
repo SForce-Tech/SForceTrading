@@ -3,6 +3,7 @@ package com.sforce.gymbuddy.service;
 import com.sforce.gymbuddy.dto.UserDTO;
 import com.sforce.gymbuddy.model.User;
 import com.sforce.gymbuddy.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.User.UserBuilder;
@@ -111,6 +112,46 @@ public class UserService {
             logger.info("No user found with username: {}", username);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Updates a user record in the database
+     * 
+     * @param user the user to update
+     * @return the updated user object
+     * @throws DataIntegrityViolationException if there is a database constraint
+     *                                         violation
+     */
+    public User updateUser(User user) throws DataIntegrityViolationException {
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+            User existingUser = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + user.getId()));
+            user.setPassword(existingUser.getPassword());
+        }
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error updating user: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param userId the ID of the user to delete
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public void deleteUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            userRepository.delete(user.get());
+        } else {
+            logger.error("Error deleting user: User with ID {} not found", userId);
+            throw new IllegalArgumentException("User not found");
+        }
     }
 
     /**
