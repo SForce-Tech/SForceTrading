@@ -3,6 +3,7 @@ package com.sforce.gymbuddy.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,12 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    private final String SECRET_KEY = Base64.getEncoder().encodeToString("secret".getBytes());
+    private final String SECRET_KEY;
+
+    // Load the secret key from an environment variable or configuration file
+    public JwtUtil(@Value("${JWT_SECRET_KEY}") String secretKey) {
+        this.SECRET_KEY = Base64.getEncoder().encodeToString(secretKey.getBytes());
+    }
 
     /**
      * Extracts the username from the JWT token.
@@ -74,7 +80,7 @@ public class JwtUtil {
      * @param token the JWT token
      * @return true if the token has expired, false otherwise
      */
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
@@ -116,5 +122,21 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    /**
+     * Refreshes the JWT token if it is about to expire.
+     *
+     * @param token the JWT token
+     * @return a new JWT token
+     */
+    public String refreshToken(String token) {
+        final Claims claims = extractAllClaims(token);
+        claims.setIssuedAt(new Date(System.currentTimeMillis()));
+        claims.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)); // Extend the expiration time
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
     }
 }
