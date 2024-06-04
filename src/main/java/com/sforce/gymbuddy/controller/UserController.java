@@ -6,18 +6,15 @@ import com.sforce.gymbuddy.model.User;
 import com.sforce.gymbuddy.service.UserService;
 import com.sforce.gymbuddy.util.JwtUtil;
 import com.sforce.gymbuddy.util.RSAUtil;
-import com.sforce.gymbuddy.validation.ValidationGroups;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import jakarta.validation.groups.Default;
 
 import java.util.List;
 import java.util.Optional;
