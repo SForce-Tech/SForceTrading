@@ -11,6 +11,7 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
 - [Running Tests](#running-tests)
 - [RSA Key and Certificate Generation](#rsa-key-and-certificate-generation)
 - [Configuring SSL for HTTPS](#configuring-ssl-for-https)
+- [Getting a JWT Token](#getting-a-jwt-token)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -36,17 +37,17 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
    mvn clean install
    ```
 
-3. Run the application:
+3. Run the application with the necessary environment variables:
 
    ```sh
-   mvn spring-boot:run
+   KEY_STORE_PWD_GYMBUDDY=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run
    ```
 
-4. The application will be available at `http://localhost:8080`.
+4. The application will be available at `https://localhost:8443`.
 
 ### Access H2 Console
 
-- Access the H2 console at `http://localhost:8080/h2-console`
+- Access the H2 console at `https://localhost:8443/h2-console`
 - Use the following settings:
   - **JDBC URL**: `jdbc:h2:file:./gymbuddy`
   - **User Name**: `SA`
@@ -64,9 +65,10 @@ src/main/java/com/sforce/gymbuddy
 │   └── WebConfig.java
 ├── controller
 │   ├── HomeController.java
-│   ├── ProtectedController.java
+│   ├── PublicKeyController.java
 │   └── UserController.java
 ├── dto
+│   ├── UserCreateDTO.java
 │   └── UserDTO.java
 ├── exception
 │   └── GlobalExceptionHandler.java
@@ -81,11 +83,18 @@ src/main/java/com/sforce/gymbuddy
 │   └── UserService.java
 └── util
     ├── JwtUtil.java
-    ├── RSAKeyGenerator.java
     └── RSAUtil.java
 ```
 
 ## Endpoints
+
+### Public Key Endpoint
+
+- **Get Public Key**
+
+  ```http
+  GET /api/public-key
+  ```
 
 ### User Endpoints
 
@@ -144,6 +153,41 @@ src/main/java/com/sforce/gymbuddy
   Request Parameters:
 
   - `email`: The email of the user to find.
+
+- **Update User**
+
+  ```http
+  PUT /api/users/update
+  ```
+
+  Request Body:
+
+  ```json
+  {
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "username": "johndoe",
+    "phone": "1234567890",
+    "addressLine1": "123 Main St",
+    "addressLine2": "",
+    "city": "Anytown",
+    "state": "Anystate",
+    "zipCode": "12345",
+    "country": "USA"
+  }
+  ```
+
+- **Delete User**
+
+  ```http
+  DELETE /api/users/delete/{userId}
+  ```
+
+  Path Variable:
+
+  - `userId`: The ID of the user to delete.
 
 ## Configuration
 
@@ -279,7 +323,9 @@ The application is configured to redirect all HTTP traffic to HTTPS.
 Ensure you have the following configuration class:
 
 ```java
-package com.sforce.gymbuddy.config;
+package com
+
+.sforce.gymbuddy.config;
 
 import org.apache.catalina.connector.Connector;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -324,15 +370,13 @@ Ensure that the `pkcs8.pem` file is stored securely and is not committed to vers
 
    Alternatively, you can set this variable in your application's environment configuration.
 
-2. \*\*Update the Application Configuration
+2. **Update the Application Configuration**
 
-\*\*
+   Ensure the `application.properties` or `application.yml` file includes a reference to the environment variable:
 
-Ensure the `application.properties` or `application.yml` file includes a reference to the environment variable:
-
-```properties
-rsa.private.key.path=${RSA_PRIVATE_KEY_PATH}
-```
+   ```properties
+   rsa.private.key.path=${RSA_PRIVATE_KEY_PATH}
+   ```
 
 ### Step 3: Application Configuration for Private Key Loading
 
@@ -381,12 +425,103 @@ public class RSAKeyConfig {
 }
 ```
 
-## Contributing
+## Getting a JWT Token
 
-Contact the repository owner for contributions.
+### Using Node.js to Get a JWT Token
 
-## License
+You can use the following Node.js script to fetch the public key, encrypt the password, and obtain a JWT token:
 
-Private use only.
+```javascript
+const crypto = require("crypto");
+const axios = require("axios");
+const https = require("https");
 
----
+// Create an HTTPS agent that accepts self-signed certificates
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+// Function to sanitize base64 encoded string
+function sanitizeBase64(str) {
+  // Remove non-base64 characters, if any (e.g., newlines, spaces)
+  return str.replace(/[^A-Za-z0-9+/=]/g, "");
+}
+
+// Function to encrypt the password using the public key
+function encryptPassword(password, publicKeyPem) {
+  const buffer = Buffer.from(password, "utf8");
+  const publicKey = crypto.createPublicKey(publicKeyPem);
+  const encrypted = crypto.publicEncrypt(
+    {
+      key: publicKey,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
+      oaepHash: "sha256",
+    },
+    buffer
+  );
+  return encrypted.toString("base64");
+}
+
+// Fetch the public key from the API
+axios
+  .get("https://localhost:8443/api/public-key", { httpsAgent })
+  .then((response) => {
+    const publicKeyPem = response.data;
+    const password = "qwerty"; // The password to encrypt
+
+    // Encrypt the password
+    let encryptedPassword = encryptPassword(password, publicKeyPem);
+
+    // Sanitize the encrypted password
+    encryptedPassword = sanitizeBase64(encryptedPassword);
+
+    // Set the encrypted password in the request body
+    const username = "leodoe"; // The username
+    const requestBody = {
+      username: username,
+      password: encryptedPassword,
+    };
+
+    console.log("Public Key PEM:\n", publicKeyPem);
+    console.log("Encrypted Password:\n", encryptedPassword);
+
+    // Send the request with the encrypted password
+    axios
+      .post("https://localhost:8443/api/users/login", requestBody, {
+        httpsAgent,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        console.log("Response:", res.data);
+      })
+      .catch((err) => {
+        console.error("Error in posting data:", err);
+      });
+  })
+  .catch((error) => {
+    console.error("Error fetching public key:", error);
+  });
+```
+
+### Using Postman with JWT Token
+
+Once you have obtained the JWT token using the above script, you can use it in Postman for subsequent API calls.
+
+1. **Set Up Postman to Trust the Self-Signed Certificate**:
+
+   - In Postman, go to `File > Settings`.
+   - Under the `General` tab, disable `SSL certificate verification`.
+
+2. **Add the JWT Token to Your Requests**:
+
+   - For each request, go to the `Authorization` tab.
+   - Select `Bearer Token` from the `Type` dropdown.
+   - Paste the JWT token obtained from the Node.js script into the `Token` field.
+
+3. **Example Request in Postman**:
+   - Set the URL to `https://localhost:8443/api/users/listAll`.
+   - Ensure the `Authorization` header is set with the JWT token.
+
+This setup will allow you to interact with the GymBuddy API securely using JWT tokens for authentication.

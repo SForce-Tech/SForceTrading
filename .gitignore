@@ -42,3 +42,8 @@ build/
 # Certificate and key files
 *.p12
 *.pem
+*.key
+
+# Node module files
+**/node_modules
+getToken/package-lock.json
