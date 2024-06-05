@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * REST controller for managing users.
+ * REST controller to expose public key for encryption.
  */
 @RestController
 @RequestMapping("/api/public-key")
