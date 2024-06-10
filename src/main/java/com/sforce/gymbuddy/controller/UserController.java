@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.regex.Pattern;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,8 @@ public class UserController {
         this.privateKey = privateKey;
     }
 
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
+
     /**
      * Retrieves a list of all users.
      *
@@ -76,6 +79,9 @@ public class UserController {
      */
     @GetMapping("/find")
     public ResponseEntity<Object> getUserByEmail(@RequestParam String email) {
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email should be valid");
+        }
         email = email.trim().toLowerCase();
         Optional<User> userOptional = userService.getUserByEmail(email);
         if (userOptional.isPresent()) {
@@ -134,7 +140,8 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+        if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty() ||
+                loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username and password must not be null");
         }
         try {
