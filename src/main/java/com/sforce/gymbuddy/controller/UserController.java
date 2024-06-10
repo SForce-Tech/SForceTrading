@@ -178,28 +178,47 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID must not be null");
         }
         try {
-            User user = new User(); // Create a User entity from UserDTO
-            // Map fields from UserDTO to User entity
-            user.setId(userDTO.getId());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setEmail(userDTO.getEmail());
-            user.setUsername(userDTO.getUsername());
-            user.setPhone(userDTO.getPhone());
-            user.setAddressLine1(userDTO.getAddressLine1());
-            user.setAddressLine2(userDTO.getAddressLine2());
-            user.setCity(userDTO.getCity());
-            user.setState(userDTO.getState());
-            user.setZipCode(userDTO.getZipCode());
-            user.setCountry(userDTO.getCountry());
+            // Fetch the existing user from the database
+            User existingUser = userService.getUserById(userDTO.getId());
+            if (existingUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userDTO.getId());
+            }
 
-            User updatedUser = userService.updateUser(user);
+            // Update only the fields that are not null in the userDTO
+            if (userDTO.getFirstName() != null)
+                existingUser.setFirstName(userDTO.getFirstName());
+            if (userDTO.getLastName() != null)
+                existingUser.setLastName(userDTO.getLastName());
+            if (userDTO.getEmail() != null)
+                existingUser.setEmail(userDTO.getEmail());
+            if (userDTO.getUsername() != null)
+                existingUser.setUsername(userDTO.getUsername());
+            if (userDTO.getPhone() != null)
+                existingUser.setPhone(userDTO.getPhone());
+            if (userDTO.getAddressLine1() != null)
+                existingUser.setAddressLine1(userDTO.getAddressLine1());
+            if (userDTO.getAddressLine2() != null)
+                existingUser.setAddressLine2(userDTO.getAddressLine2());
+            if (userDTO.getCity() != null)
+                existingUser.setCity(userDTO.getCity());
+            if (userDTO.getState() != null)
+                existingUser.setState(userDTO.getState());
+            if (userDTO.getZipCode() != null)
+                existingUser.setZipCode(userDTO.getZipCode());
+            if (userDTO.getCountry() != null)
+                existingUser.setCountry(userDTO.getCountry());
+
+            // Save the updated user
+            User updatedUser = userService.updateUser(existingUser);
             return ResponseEntity.ok(userService.convertToDTO(updatedUser));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("A user with the same email or username already exists.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An error occurred while updating the user");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("An error occurred while updating the user: " + e.getMessage());
         }
     }
 
@@ -218,5 +237,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
         }
     }
-
 }
