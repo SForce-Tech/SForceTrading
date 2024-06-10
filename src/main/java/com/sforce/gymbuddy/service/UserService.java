@@ -26,8 +26,11 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Constructs a new UserService.
@@ -39,6 +42,17 @@ public class UserService {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * Returns the user for the specified identifier
+     * 
+     * @param id
+     * @return the user
+     */
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
 
     /**
@@ -130,6 +144,12 @@ public class UserService {
                     .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + user.getId()));
             user.setPassword(existingUser.getPassword());
         }
+
+        Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
+        if (existingUserByEmail.isPresent() && !existingUserByEmail.get().getId().equals(user.getId())) {
+            throw new DataIntegrityViolationException("A user with the same email already exists.");
+        }
+
         try {
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
