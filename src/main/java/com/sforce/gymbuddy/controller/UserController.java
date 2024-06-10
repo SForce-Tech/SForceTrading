@@ -1,5 +1,6 @@
 package com.sforce.gymbuddy.controller;
 
+import com.sforce.gymbuddy.dto.PasswordUpdateDTO;
 import com.sforce.gymbuddy.dto.UserCreateDTO;
 import com.sforce.gymbuddy.dto.UserDTO;
 import com.sforce.gymbuddy.model.User;
@@ -219,6 +220,30 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("An error occurred while updating the user: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates the user password
+     * 
+     * @param userId            the user identifier to update
+     * @param passwordUpdateDTO the DTO object that holds the current password and
+     *                          new password
+     * @return the response entity
+     */
+    @PutMapping("/updatePassword/{userId}")
+    public ResponseEntity<Object> updatePassword(
+            @PathVariable Long userId,
+            @Valid @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
+        try {
+            userService.updatePassword(userId, passwordUpdateDTO.getCurrentPassword(),
+                    passwordUpdateDTO.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the password: " + e.getMessage());
         }
     }
 

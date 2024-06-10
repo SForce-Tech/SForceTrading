@@ -159,6 +159,25 @@ public class UserService {
     }
 
     /**
+     * Updates the user password
+     * 
+     * @param userId          the user identifier to update
+     * @param currentPassword the current password
+     * @param newPassword     the new password
+     */
+    public void updatePassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    /**
      * Deletes a user by their ID.
      *
      * @param userId the ID of the user to delete
