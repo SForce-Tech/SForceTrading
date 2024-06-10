@@ -23,7 +23,7 @@ public class JwtUtil {
     private final String SECRET_KEY;
 
     // Load the secret key from an environment variable or configuration file
-    public JwtUtil(@Value("${JWT_SECRET_KEY}") String secretKey) {
+    public JwtUtil(@Value("${jwt.secret.key}") String secretKey) {
         this.SECRET_KEY = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
