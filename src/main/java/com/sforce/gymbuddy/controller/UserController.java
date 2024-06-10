@@ -185,32 +185,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userDTO.getId());
             }
 
-            // Update only the fields that are not null in the userDTO
-            if (userDTO.getFirstName() != null)
-                existingUser.setFirstName(userDTO.getFirstName());
-            if (userDTO.getLastName() != null)
-                existingUser.setLastName(userDTO.getLastName());
-            if (userDTO.getEmail() != null)
-                existingUser.setEmail(userDTO.getEmail());
-            if (userDTO.getUsername() != null)
-                existingUser.setUsername(userDTO.getUsername());
-            if (userDTO.getPhone() != null)
-                existingUser.setPhone(userDTO.getPhone());
-            if (userDTO.getAddressLine1() != null)
-                existingUser.setAddressLine1(userDTO.getAddressLine1());
-            if (userDTO.getAddressLine2() != null)
-                existingUser.setAddressLine2(userDTO.getAddressLine2());
-            if (userDTO.getCity() != null)
-                existingUser.setCity(userDTO.getCity());
-            if (userDTO.getState() != null)
-                existingUser.setState(userDTO.getState());
-            if (userDTO.getZipCode() != null)
-                existingUser.setZipCode(userDTO.getZipCode());
-            if (userDTO.getCountry() != null)
-                existingUser.setCountry(userDTO.getCountry());
-
-            // Save the updated user
-            User updatedUser = userService.updateUser(existingUser);
+            // Update the user details
+            User updatedUser = userService.updateUserDetails(existingUser, userDTO);
             return ResponseEntity.ok(userService.convertToDTO(updatedUser));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)

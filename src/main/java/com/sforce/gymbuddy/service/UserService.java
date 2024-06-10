@@ -136,26 +136,51 @@ public class UserService {
      * @throws DataIntegrityViolationException if there is a database constraint
      *                                         violation
      */
-    public User updateUser(User user) throws DataIntegrityViolationException {
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        } else {
-            User existingUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + user.getId()));
-            user.setPassword(existingUser.getPassword());
+    public User updateUserDetails(User existingUser, UserDTO userDTO) {
+        if (userDTO.getFirstName() != null) {
+            existingUser.setFirstName(userDTO.getFirstName());
+        }
+        if (userDTO.getLastName() != null) {
+            existingUser.setLastName(userDTO.getLastName());
+        }
+        if (userDTO.getEmail() != null) {
+            Optional<User> existingUserByEmail = userRepository.findByEmail(userDTO.getEmail());
+            if (existingUserByEmail.isPresent() && !existingUserByEmail.get().getId().equals(existingUser.getId())) {
+                throw new DataIntegrityViolationException("A user with the same email already exists.");
+            }
+            existingUser.setEmail(userDTO.getEmail());
+        }
+        if (userDTO.getUsername() != null) {
+            Optional<User> existingUserByUsername = userRepository.findByUsername(userDTO.getUsername());
+            if (existingUserByUsername.isPresent()
+                    && !existingUserByUsername.get().getId().equals(existingUser.getId())) {
+                throw new DataIntegrityViolationException("A user with the same username already exists.");
+            }
+            existingUser.setUsername(userDTO.getUsername());
+        }
+        if (userDTO.getPhone() != null) {
+            existingUser.setPhone(userDTO.getPhone());
+        }
+        if (userDTO.getAddressLine1() != null) {
+            existingUser.setAddressLine1(userDTO.getAddressLine1());
+        }
+        if (userDTO.getAddressLine2() != null) {
+            existingUser.setAddressLine2(userDTO.getAddressLine2());
+        }
+        if (userDTO.getCity() != null) {
+            existingUser.setCity(userDTO.getCity());
+        }
+        if (userDTO.getState() != null) {
+            existingUser.setState(userDTO.getState());
+        }
+        if (userDTO.getZipCode() != null) {
+            existingUser.setZipCode(userDTO.getZipCode());
+        }
+        if (userDTO.getCountry() != null) {
+            existingUser.setCountry(userDTO.getCountry());
         }
 
-        Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
-        if (existingUserByEmail.isPresent() && !existingUserByEmail.get().getId().equals(user.getId())) {
-            throw new DataIntegrityViolationException("A user with the same email already exists.");
-        }
-
-        try {
-            return userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            logger.error("Error updating user: {}", e.getMessage());
-            throw e;
-        }
+        return userRepository.save(existingUser);
     }
 
     /**

@@ -242,38 +242,44 @@ public class UserIntegrationTest {
         // todo: update logic, keep getting error: actual 400, when debugging we see
         // "org.springframework.dao.IncorrectResultSizeDataAccessException: Query did
         // not return a unique result: 2 results were returned"
-        /*
-         * @Test
-         * public void testUpdateUserDuplicateEmail() throws Exception {
-         * User user = userRepository.findByUsername("testuser").orElseThrow();
-         * 
-         * UserDTO userDTO = new UserDTO();
-         * userDTO.setId(user.getId());
-         * userDTO.setUsername("updateduser");
-         * userDTO.setEmail("updateduser@example.com");
-         * userDTO.setFirstName("Updated");
-         * userDTO.setLastName("User");
-         * 
-         * // Test duplicate email
-         * UserCreateDTO newUser = new UserCreateDTO();
-         * newUser.setUsername("newuser");
-         * newUser.setPassword("newpassword");
-         * newUser.setEmail("testuser@example.com");
-         * newUser.setFirstName("New");
-         * newUser.setLastName("User");
-         * 
-         * userRepository.save(objectMapper.convertValue(newUser, User.class));
-         * userDTO.setEmail("testuser@example.com");
-         * 
-         * mockMvc.perform(put("/api/users/update")
-         * .contentType(MediaType.APPLICATION_JSON)
-         * .content(objectMapper.writeValueAsString(userDTO))
-         * .header("Authorization", "Bearer " + jwtToken))
-         * .andExpect(status().isConflict())
-         * .andExpect(content().
-         * string("A user with the same email or username already exists."));
-         * }
-         */
+        @Test
+        public void testUpdateUserDuplicateEmail() throws Exception {
+                // Clear existing data to prevent duplicates
+                userRepository.deleteAll();
+
+                // Create and save the first user
+                User user = new User();
+                user.setUsername("testuser");
+                user.setPassword(passwordEncoder.encode("testpassword"));
+                user.setEmail("testuser@example.com");
+                user.setFirstName("Test");
+                user.setLastName("User");
+                userRepository.save(user);
+
+                // Create and save the second user
+                UserCreateDTO newUser = new UserCreateDTO();
+                newUser.setUsername("newuser");
+                newUser.setPassword("newpassword");
+                newUser.setEmail("anotheruser@example.com"); // Use a different email
+                newUser.setFirstName("New");
+                newUser.setLastName("User");
+                userRepository.save(objectMapper.convertValue(newUser, User.class));
+
+                // Update the first user with the email of the second user
+                UserDTO userDTO = new UserDTO();
+                userDTO.setId(user.getId());
+                userDTO.setUsername("updateduser");
+                userDTO.setEmail("anotheruser@example.com"); // Try to set to an existing email
+                userDTO.setFirstName("Updated");
+                userDTO.setLastName("User");
+
+                mockMvc.perform(put("/api/users/update")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDTO))
+                                .header("Authorization", "Bearer " + jwtToken))
+                                .andExpect(status().isConflict())
+                                .andExpect(content().string("A user with the same email or username already exists."));
+        }
 
         @Test
         public void testUpdatePassword() throws Exception {
