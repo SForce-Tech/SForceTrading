@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
  * Represents a user in the system.
  */
 @Entity
-@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = { "username" }))
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = { "username", "email" }))
 public class User {
 
     @Id
