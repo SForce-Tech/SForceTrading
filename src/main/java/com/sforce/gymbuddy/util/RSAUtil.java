@@ -23,7 +23,13 @@ public class RSAUtil {
      * @throws Exception if an error occurs during key conversion
      */
     public static PublicKey getPublicKey(String base64PublicKey) throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(base64PublicKey);
+        // Remove header, footer, and newlines
+        String publicKeyPEM = base64PublicKey
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(publicKeyPEM);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return keyFactory.generatePublic(spec);
