@@ -1,5 +1,6 @@
 package com.sforce.gymbuddy.controller;
 
+import com.sforce.gymbuddy.dto.PasswordUpdateDTO;
 import com.sforce.gymbuddy.dto.UserCreateDTO;
 import com.sforce.gymbuddy.dto.UserDTO;
 import com.sforce.gymbuddy.model.User;
@@ -178,28 +179,47 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID must not be null");
         }
         try {
-            User user = new User(); // Create a User entity from UserDTO
-            // Map fields from UserDTO to User entity
-            user.setId(userDTO.getId());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setEmail(userDTO.getEmail());
-            user.setUsername(userDTO.getUsername());
-            user.setPhone(userDTO.getPhone());
-            user.setAddressLine1(userDTO.getAddressLine1());
-            user.setAddressLine2(userDTO.getAddressLine2());
-            user.setCity(userDTO.getCity());
-            user.setState(userDTO.getState());
-            user.setZipCode(userDTO.getZipCode());
-            user.setCountry(userDTO.getCountry());
+            // Fetch the existing user from the database
+            User existingUser = userService.getUserById(userDTO.getId());
+            if (existingUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userDTO.getId());
+            }
 
-            User updatedUser = userService.updateUser(user);
+            // Update the user details
+            User updatedUser = userService.updateUserDetails(existingUser, userDTO);
             return ResponseEntity.ok(userService.convertToDTO(updatedUser));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("A user with the same email or username already exists.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An error occurred while updating the user");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("An error occurred while updating the user: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates the user password
+     * 
+     * @param userId            the user identifier to update
+     * @param passwordUpdateDTO the DTO object that holds the current password and
+     *                          new password
+     * @return the response entity
+     */
+    @PutMapping("/updatePassword/{userId}")
+    public ResponseEntity<Object> updatePassword(
+            @PathVariable Long userId,
+            @Valid @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
+        try {
+            userService.updatePassword(userId, passwordUpdateDTO.getCurrentPassword(),
+                    passwordUpdateDTO.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the password: " + e.getMessage());
         }
     }
 
@@ -218,5 +238,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
         }
     }
-
 }

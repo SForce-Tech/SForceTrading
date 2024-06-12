@@ -26,8 +26,11 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Constructs a new UserService.
@@ -39,6 +42,17 @@ public class UserService {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * Returns the user for the specified identifier
+     * 
+     * @param id
+     * @return the user
+     */
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
 
     /**
@@ -122,20 +136,70 @@ public class UserService {
      * @throws DataIntegrityViolationException if there is a database constraint
      *                                         violation
      */
-    public User updateUser(User user) throws DataIntegrityViolationException {
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        } else {
-            User existingUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + user.getId()));
-            user.setPassword(existingUser.getPassword());
+    public User updateUserDetails(User existingUser, UserDTO userDTO) {
+        if (userDTO.getFirstName() != null) {
+            existingUser.setFirstName(userDTO.getFirstName());
         }
-        try {
-            return userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            logger.error("Error updating user: {}", e.getMessage());
-            throw e;
+        if (userDTO.getLastName() != null) {
+            existingUser.setLastName(userDTO.getLastName());
         }
+        if (userDTO.getEmail() != null) {
+            Optional<User> existingUserByEmail = userRepository.findByEmail(userDTO.getEmail());
+            if (existingUserByEmail.isPresent() && !existingUserByEmail.get().getId().equals(existingUser.getId())) {
+                throw new DataIntegrityViolationException("A user with the same email already exists.");
+            }
+            existingUser.setEmail(userDTO.getEmail());
+        }
+        if (userDTO.getUsername() != null) {
+            Optional<User> existingUserByUsername = userRepository.findByUsername(userDTO.getUsername());
+            if (existingUserByUsername.isPresent()
+                    && !existingUserByUsername.get().getId().equals(existingUser.getId())) {
+                throw new DataIntegrityViolationException("A user with the same username already exists.");
+            }
+            existingUser.setUsername(userDTO.getUsername());
+        }
+        if (userDTO.getPhone() != null) {
+            existingUser.setPhone(userDTO.getPhone());
+        }
+        if (userDTO.getAddressLine1() != null) {
+            existingUser.setAddressLine1(userDTO.getAddressLine1());
+        }
+        if (userDTO.getAddressLine2() != null) {
+            existingUser.setAddressLine2(userDTO.getAddressLine2());
+        }
+        if (userDTO.getCity() != null) {
+            existingUser.setCity(userDTO.getCity());
+        }
+        if (userDTO.getState() != null) {
+            existingUser.setState(userDTO.getState());
+        }
+        if (userDTO.getZipCode() != null) {
+            existingUser.setZipCode(userDTO.getZipCode());
+        }
+        if (userDTO.getCountry() != null) {
+            existingUser.setCountry(userDTO.getCountry());
+        }
+
+        return userRepository.save(existingUser);
+    }
+
+    /**
+     * Updates the user password
+     * 
+     * @param userId          the user identifier to update
+     * @param currentPassword the current password
+     * @param newPassword     the new password
+     */
+    public void updatePassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     /**

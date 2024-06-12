@@ -21,7 +21,8 @@ public class GlobalExceptionHandler {
      * Handles validation exceptions thrown when a method argument is not valid.
      *
      * @param ex the MethodArgumentNotValidException
-     * @return a ResponseEntity containing a map of field errors and corresponding messages, with HTTP status BAD_REQUEST
+     * @return a ResponseEntity containing a map of field errors and corresponding
+     *         messages, with HTTP status BAD_REQUEST
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -36,10 +37,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles all other exceptions that are not explicitly handled by other methods.
+     * Handles all other exceptions that are not explicitly handled by other
+     * methods.
      *
      * @param ex the Exception
-     * @return a ResponseEntity containing the exception message, with HTTP status INTERNAL_SERVER_ERROR
+     * @return a ResponseEntity containing the exception message, with HTTP status
+     *         INTERNAL_SERVER_ERROR
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
