@@ -202,6 +202,22 @@ public class UserIntegrationTest {
         }
 
         @Test
+        public void testGetUserByUsername() throws Exception {
+                mockMvc.perform(get("/api/users/getUser")
+                                .param("username", "testuser")
+                                .header("Authorization", "Bearer " + jwtToken))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.username", is("testuser")));
+
+                // Test user not found
+                mockMvc.perform(get("/api/users/getUser")
+                                .param("username", "nonexistentuser")
+                                .header("Authorization", "Bearer " + jwtToken))
+                                .andExpect(status().isNotFound())
+                                .andExpect(content().string("User not found with username: nonexistentuser"));
+        }
+
+        @Test
         public void testUpdateUser() throws Exception {
                 User user = userRepository.findByUsername("testuser").orElseThrow();
 

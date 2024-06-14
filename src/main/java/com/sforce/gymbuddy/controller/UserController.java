@@ -94,6 +94,24 @@ public class UserController {
     }
 
     /**
+     * Retrieves a user by their username.
+     *
+     * @param username the username of the user to retrieve
+     * @return a ResponseEntity containing the user or a not found status if the
+     *         user is not found
+     */
+    @GetMapping("/getUser")
+    public ResponseEntity<Object> getUserByUsername(@RequestParam String username) {
+        Optional<User> userOptional = userService.getUserByUsername(username);
+        if (userOptional.isPresent()) {
+            return ResponseEntity.ok(userService.convertToDTO(userOptional.get()));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found with username: " + username);
+        }
+    }
+
+    /**
      * Registers a new user.
      *
      * @param user the user to register
