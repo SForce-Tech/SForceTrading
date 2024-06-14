@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "58c51c74-9f71-40f7-ba32-8a0d271845e9",
+		"name": "GymBuddy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35119024"
+	},
+	"item": [
+		{
+			"name": "Create user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"Joan\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"joan.doe@example.com\",\r\n    \"username\": \"joandoe\",\r\n    \"password\": \"qwerty\",\r\n    \"phone\": \"1234567890\",\r\n    \"addressLine1\": \"123 Main St\",\r\n    \"addressLine2\": \"Apt 4\",\r\n    \"city\": \"Springfield\",\r\n    \"state\": \"IL\",\r\n    \"zipCode\": \"62701\",\r\n    \"country\": \"USA\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/users/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 13,\r\n    \"email\": \"eri.doe@example.com\",\r\n    \"zipCode\": \"62701\",\r\n    \"country\": \"USA\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/users/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8443/api/users/listAll",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						"listAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"leodoe\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/login",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find by email",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/users/find?email=eri.mata@example.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"find"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "eri.mata@example.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find by username",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/getUser?username=eridoe",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"getUser"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "eridoe"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "JWT protected",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsZW9kb2UiLCJleHAiOjE3MTY2MTUzNjUsImlhdCI6MTcxNjU3OTM2NX0.iOQRkmaCESGOTRFRH1MeVcBsXsyIVbyUsWAyToO_TOY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/protected",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"protected"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Public Key",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8443/api/public-key",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"public-key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/users/delete/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"delete",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Password",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"currentPassword\": \"qwerty1\",\r\n    \"newPassword\": \"qwerty\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/updatePassword/10",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"updatePassword",
+						"10"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwtToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "password",
+			"value": "bG5SB+XWCCr17wu60B7wrvaB1hMjBm2Akrmx+s05KgSga0JXknQG8gEynTgetXkmBpPs4CVvekjYI+E+yP6w3H3urwj5PYK3qgjgEKV+6OrGhqH/gRDo4Ku3g5wwTvhI2d0UYk2/aTORoztqelUxXqAZhrzvre8nWFLZ6oH7TFNgbUoNZr8yxtTpNw7uSMXUji0BTEqUe8lwwjep5sg4U8IlKFhPiJiiW7vcjVtA+6rWHm7YlYRWmz1xcHvI4W63SDmqsvkjbSID1BziUuls1P9KLbJB+YZH7s43aoqNRFVs0vALLu3y7tgws4pOPjeAQCh2oWCfprpaZx53BIXAVg=="
+		},
+		{
+			"key": "jwtToken",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsZW9kb2UiLCJleHAiOjE3MTg0MTUwODMsImlhdCI6MTcxODM3OTA4M30.4mAS80uPIS-ss9BbhCPDJEV0LdIuYSACz0YwMTk_YlM",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "leodoe",
+			"type": "string"
+		},
+		{
+			"key": "endpoint",
+			"value": "https://localhost:8443/api/users"
+		}
+	]
+}

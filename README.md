@@ -12,6 +12,8 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
 - [RSA Key and Certificate Generation](#rsa-key-and-certificate-generation)
 - [Configuring SSL for HTTPS](#configuring-ssl-for-https)
 - [Getting a JWT Token](#getting-a-jwt-token)
+- [Postman Collection](#postman-collection)
+- [VSCode Tasks](#vscode-tasks)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -65,6 +67,7 @@ src/main/java/com/sforce/gymbuddy
 │   └── WebConfig.java
 ├── controller
 │   ├── HomeController.java
+│   ├── PlaceholderController.java
 │   ├── PublicKeyController.java
 │   └── UserController.java
 ├── dto
@@ -104,38 +107,10 @@ src/main/java/com/sforce/gymbuddy
   POST /api/users/register
   ```
 
-  Request Body:
-
-  ```json
-  {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "username": "johndoe",
-    "password": "password",
-    "phone": "1234567890",
-    "addressLine1": "123 Main St",
-    "addressLine2": "",
-    "city": "Anytown",
-    "state": "Anystate",
-    "zipCode": "12345",
-    "country": "USA"
-  }
-  ```
-
 - **Login User**
 
   ```http
   POST /api/users/login
-  ```
-
-  Request Body:
-
-  ```json
-  {
-    "username": "johndoe",
-    "password": "password"
-  }
   ```
 
 - **Get All Users**
@@ -150,33 +125,16 @@ src/main/java/com/sforce/gymbuddy
   GET /api/users/find
   ```
 
-  Request Parameters:
+- **Find User by Username**
 
-  - `email`: The email of the user to find.
+  ```http
+  GET /api/users/getUser
+  ```
 
 - **Update User**
 
   ```http
   PUT /api/users/update
-  ```
-
-  Request Body:
-
-  ```json
-  {
-    "id": 1,
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "username": "johndoe",
-    "phone": "1234567890",
-    "addressLine1": "123 Main St",
-    "addressLine2": "",
-    "city": "Anytown",
-    "state": "Anystate",
-    "zipCode": "12345",
-    "country": "USA"
-  }
   ```
 
 - **Delete User**
@@ -185,47 +143,33 @@ src/main/java/com/sforce/gymbuddy
   DELETE /api/users/delete/{userId}
   ```
 
-  Path Variable:
+- **Update Password**
 
-  - `userId`: The ID of the user to delete.
+  ```http
+  PUT /api/users/updatePassword/{userId}
+  ```
+
+### Placeholder Endpoint
+
+- **Get Placeholder Data**
+
+  ```http
+  GET /api/placeholder
+  ```
 
 ## Configuration
 
 ### Security Configuration
 
-The security configuration is managed in the `SecurityConfiguration` class. It sets up HTTP security, including form login, HTTP basic authentication, and CSRF protection.
+- **SecurityConfiguration.java**: Manages HTTP security, including form login, HTTP basic authentication, and CSRF protection.
 
 ### User Details Service
 
-Two user details services are used:
+- **CustomUserDetailsService.java**: Loads user-specific data from the database.
 
-- `CustomUserDetailsService`: Loads user-specific data from the database.
-- `InMemoryUserDetailsManager`: Manages a user stored in memory for administrative purposes.
+### JWT Authentication
 
-## JWT Authentication
-
-The application supports JWT authentication. Use the following steps to authenticate via JWT:
-
-1. Obtain a JWT token by sending a POST request to `/api/users/login` with valid credentials.
-2. Include the JWT token in the `Authorization` header for subsequent requests.
-
-### Example
-
-**Request**:
-
-```http
-POST /api/users/login
-Content-Type: application/json
-
-{
-  "username": "theAdmin",
-  "password": "qwerty"
-}
-```
-
-### Password Encoding
-
-BCrypt is used for password encoding. The `PasswordEncoder` bean is defined in the `SecurityConfiguration` class.
+- **JwtRequestFilter.java**: Manages JWT authentication and authorization.
 
 ## Running Tests
 
@@ -237,74 +181,48 @@ mvn test
 
 ## RSA Key and Certificate Generation
 
-To ensure secure communication, the GymBuddy application uses RSA encryption. You need to generate an RSA private key and certificate that will be used for JWT token encryption and decryption.
-
 ### Steps to Generate RSA Private Key and Certificate
 
 1. **Generate a Private Key**
-
-   Use the following OpenSSL command to generate a 2048-bit RSA private key:
 
    ```sh
    openssl genpkey -algorithm RSA -out pkcs8.pem -aes256
    ```
 
-   This command generates a private key and saves it to a file named `pkcs8.pem`. The `-aes256` flag encrypts the key file with AES-256 encryption, and you will be prompted to set a password.
-
 2. **Generate a Public Key**
-
-   Extract the public key from the private key using the following command:
 
    ```sh
    openssl rsa -pubout -in pkcs8.pem -out public.key
    ```
 
-   This command reads the private key from `pkcs8.pem` and writes the public key to a file named `public.key`.
-
 3. **Verify the Key Files**
-
-   Verify the contents of the private and public key files using the following commands:
 
    ```sh
    openssl rsa -in pkcs8.pem -check
    openssl rsa -in public.key -pubin -text -noout
    ```
 
-   These commands will print the key details to the console, allowing you to verify that the keys have been generated correctly.
-
 ## Configuring SSL for HTTPS
-
-To ensure that all communication with the server is secure, HTTPS is configured using an SSL certificate stored in a Java KeyStore (`keystore.p12`). Additionally, HTTP requests are redirected to HTTPS.
 
 ### Steps to Generate the SSL Certificate
 
 1. **Generate a Keystore**
 
-   Use the following command to generate a keystore with a self-signed certificate:
-
    ```sh
    keytool -genkeypair -alias gymbuddy -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 365
    ```
 
-   Follow the prompts to set the keystore password and other details. This will create a `keystore.p12` file containing the private key and self-signed certificate.
-
-### Configuring the Application
-
-1. **Store the Keystore Securely**
+2. **Store the Keystore Securely**
 
    Ensure that the `keystore.p12` file is stored securely and is not committed to version control.
 
-2. **Set Environment Variables**
-
-   Set the environment variables for the keystore path and password:
+3. **Set Environment Variables**
 
    ```sh
    export KEY_STORE_PWD_GYMBUDDY=your_keystore_password
    ```
 
-3. **Update Application Properties**
-
-   Ensure the `application.properties` or `application.yml` file includes the keystore configuration:
+4. **Update Application Properties**
 
    ```properties
    server.ssl.key-store=classpath:keystore.p12
@@ -314,200 +232,13 @@ To ensure that all communication with the server is secure, HTTPS is configured 
    server.port=8443
    ```
 
-### Setting Up HTTP to HTTPS Redirection
-
-The application is configured to redirect all HTTP traffic to HTTPS.
-
-#### Configuration Class for Redirection
-
-Ensure you have the following configuration class:
-
-```java
-package com
-
-.sforce.gymbuddy.config;
-
-import org.apache.catalina.connector.Connector;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class TomcatHttpRedirectConfig {
-
-    @Bean
-    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainerCustomizer() {
-        return factory -> factory.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
-    }
-
-    private Connector httpToHttpsRedirectConnector() {
-        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-        connector.setScheme("http");
-        connector.setPort(8080); // HTTP port
-        connector.setSecure(false);
-        connector.setRedirectPort(8443); // HTTPS port
-        return connector;
-    }
-}
-```
-
-## Configuring the Application to Use the RSA Private Key
-
-### Step 1: Store the Private Key Securely
-
-Ensure that the `pkcs8.pem` file is stored securely and is not committed to version control.
-
-### Step 2: Configure the Application to Use the Private Key
-
-1. **Set the Path to the Private Key**
-
-   The application needs to know where to find the `pkcs8.pem` file. You can set this path using an environment variable. For example:
-
-   ```sh
-   export RSA_PRIVATE_KEY_PATH=/path/to/pkcs8.pem
-   ```
-
-   Alternatively, you can set this variable in your application's environment configuration.
-
-2. **Update the Application Configuration**
-
-   Ensure the `application.properties` or `application.yml` file includes a reference to the environment variable:
-
-   ```properties
-   rsa.private.key.path=${RSA_PRIVATE_KEY_PATH}
-   ```
-
-### Step 3: Application Configuration for Private Key Loading
-
-The following class is responsible for loading the RSA private key from the specified file path:
-
-```java
-package com.sforce.gymbuddy.config;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import java.nio.file.Files;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-
-@Configuration
-public class RSAKeyConfig {
-
-    @Value("${rsa.private.key.path}")
-    private String privateKeyPath;
-
-    @Bean
-    public PrivateKey privateKey() throws Exception {
-        Resource resource = new ClassPathResource(privateKeyPath);
-        byte[] keyBytes = Files.readAllBytes(resource.getFile().toPath());
-
-        // Convert the key bytes into a string and clean it up
-        String privateKeyPEM = new String(keyBytes)
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s+", "");
-
-        // Decode the Base64 string
-        byte[] decoded = Base64.getDecoder().decode(privateKeyPEM);
-
-        // Create the private key
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return kf.generatePrivate(spec);
-    }
-}
-```
-
 ## Getting a JWT Token
 
 ### Using Node.js to Get a JWT Token
 
-You can use the following Node.js script to fetch the public key, encrypt the password, and obtain a JWT token:
-
-```javascript
-const crypto = require("crypto");
-const axios = require("axios");
-const https = require("https");
-
-// Create an HTTPS agent that accepts self-signed certificates
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
-
-// Function to sanitize base64 encoded string
-function sanitizeBase64(str) {
-  // Remove non-base64 characters, if any (e.g., newlines, spaces)
-  return str.replace(/[^A-Za-z0-9+/=]/g, "");
-}
-
-// Function to encrypt the password using the public key
-function encryptPassword(password, publicKeyPem) {
-  const buffer = Buffer.from(password, "utf8");
-  const publicKey = crypto.createPublicKey(publicKeyPem);
-  const encrypted = crypto.publicEncrypt(
-    {
-      key: publicKey,
-      padding: crypto.constants.RSA_PKCS1_PADDING,
-      oaepHash: "sha256",
-    },
-    buffer
-  );
-  return encrypted.toString("base64");
-}
-
-// Fetch the public key from the API
-axios
-  .get("https://localhost:8443/api/public-key", { httpsAgent })
-  .then((response) => {
-    const publicKeyPem = response.data;
-    const password = "qwerty"; // The password to encrypt
-
-    // Encrypt the password
-    let encryptedPassword = encryptPassword(password, publicKeyPem);
-
-    // Sanitize the encrypted password
-    encryptedPassword = sanitizeBase64(encryptedPassword);
-
-    // Set the encrypted password in the request body
-    const username = "leodoe"; // The username
-    const requestBody = {
-      username: username,
-      password: encryptedPassword,
-    };
-
-    console.log("Public Key PEM:\n", publicKeyPem);
-    console.log("Encrypted Password:\n", encryptedPassword);
-
-    // Send the request with the encrypted password
-    axios
-      .post("https://localhost:8443/api/users/login", requestBody, {
-        httpsAgent,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        console.log("Response:", res.data);
-      })
-      .catch((err) => {
-        console.error("Error in posting data:", err);
-      });
-  })
-  .catch((error) => {
-    console.error("Error fetching public key:", error);
-  });
-```
+Use the provided Node.js script in the `scripts/getToken` directory to fetch the public key, encrypt the password, and obtain a JWT token.
 
 ### Using Postman with JWT Token
-
-Once you have obtained the JWT token using the above script, you can use it in Postman for subsequent API calls.
 
 1. **Set Up Postman to Trust the Self-Signed Certificate**:
 
@@ -515,13 +246,49 @@ Once you have obtained the JWT token using the above script, you can use it in P
    - Under the `General` tab, disable `SSL certificate verification`.
 
 2. **Add the JWT Token to Your Requests**:
-
    - For each request, go to the `Authorization` tab.
    - Select `Bearer Token` from the `Type` dropdown.
    - Paste the JWT token obtained from the Node.js script into the `Token` field.
 
-3. **Example Request in Postman**:
-   - Set the URL to `https://localhost:8443/api/users/listAll`.
-   - Ensure the `Authorization` header is set with the JWT token.
+## Postman Collection
 
-This setup will allow you to interact with the GymBuddy API securely using JWT tokens for authentication.
+Import the provided Postman collection (`GymBuddy.postman_collection.json`) to test the API endpoints. Example requests include user registration, login, and fetching user details.
+
+## VSCode Tasks
+
+A `tasks.json` file is provided for running the GymBuddy application and tests in VSCode.
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "run gymbuddy",
+      "command": "KEY_STORE_PWD_GYMBUDDY=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run",
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "type": "shell",
+      "label": "test gymbuddy",
+      "command": "mvn test",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "get JWT token",
+      "command": "node scripts/getToken/encrypt.js",
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+## License
+
+Private use only by the author.
