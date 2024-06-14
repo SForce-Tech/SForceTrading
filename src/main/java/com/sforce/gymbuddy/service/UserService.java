@@ -79,6 +79,16 @@ public class UserService {
     }
 
     /**
+     * Retrieves a user by username.
+     *
+     * @param username the username of the user
+     * @return an optional containing the user if found, or empty if not found
+     */
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    /**
      * Saves a new user or updates an existing user.
      *
      * @param user the user to save
@@ -253,4 +263,5 @@ public class UserService {
         builder.roles("USER"); // Customize roles as needed
         return builder.build();
     }
+
 }
