@@ -1,4 +1,11 @@
-INSERT INTO users (id, first_name, last_name, email, phone, password, address_line1, address_line2, city, state, zip_code, country, username) VALUES
-(1, 'Jim', 'Doe', 'jim.doe@example.com', '1234567890', '$2a$10$Wh7pFnjWUMSIXu.XuRN9p.4aZCvIy9zRrUnu.y42AvC/HNqXkc9wu', '123 Main St', 'Apt 4', 'Springfield', 'IL', '62701', 'USA', 'jimdoe'),
-(2, 'John', 'Doe', 'john.doe@example.com', '1234567890', '$2a$10$dCEBLV80.S7gkVqFB6EWkudNxEX.RufP21VlYleAHjSNNQ4KGG3AS', '123 Main St', 'Apt 4', 'Springfield', 'IL', '62701', 'USA', 'johndoe'),
-(3, 'Jane', 'Doe', 'jane.doe@example.com', '1234567890', '$2a$10$i.cVyE/uYlXn5uij8F32xuEiavKiaoxrHszLAeMPSLZeYLmCoRvCK', '123 Main St', 'Apt 4', 'Springfield', 'IL', '62701', 'USA', 'janedoe');
+INSERT INTO USERS (ID, ADDRESS_LINE1, ADDRESS_LINE2, CITY, COUNTRY, EMAIL, FIRST_NAME, LAST_NAME, PASSWORD, PHONE, STATE, USERNAME, ZIP_CODE)
+VALUES
+(1, '9731 Fontainebleau Blvd, Apt 112', 'Apt 112', 'Miami', 'United States', 'jim.doe@example.com', 'Jim', 'Doe', '$2a$10$Wh7pFnjWUMSIXu.XuRN9p.4aZCvIy9zRrUnu.y42AvC/HNqXkc9wu', '7867647670', 'FL', 'jimdoe', '33172'),
+(2, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'john.doe@example.com', 'John', 'Doe', '$2a$10$dCEBLV80.S7gkVqFB6EWkudNxEX.RufP21VlYleAHjSNNQ4KGG3AS', '1234567890', 'IL', 'johndoe', '62701'),
+(9, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'victoria.doe@example.com', 'Victoria', 'Doe', '$2a$10$LYMpWijv0FKiJsj2s6yTHOgExfVRTk2becvICiEut1WesETZTHzwK', '1234567890', 'IL', 'victoriadoe', '62701'),
+(10, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'eri.mata@example.com', 'Erilyn', 'Mata', '$2a$10$2yhoRAcBiADHb29GIReblesFvDwt/h84g01K2VGlbLlSfTH1Mfqai', '1234567890', 'IL', 'eridoe', '62701'),
+(11, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'arian.doe@example.com', 'Arian', 'Doe', '$2a$10$qTqViHspm.5N.owU1ZPnTeUC7/ll4LC17r7IGhb6PcifARljzXf0.', '1234567890', 'IL', 'ariandoe', '62701'),
+(12, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'adrian.doe@example.com', 'Adrian', 'Doe', '$2a$10$DI62rwF5hRzwJ/thiBqxBeMasTFMj5trk8ijg4nlANx11y0W8U6na', '1234567890', 'IL', 'adrian.doe', '62701'),
+(13, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'leo.doe@example.com', 'Leo', 'Doe', '$2a$10$yNc4IGmYDGYUNYiQe3o1QeNz5lG7tKWwaGECU.kCBQvT4XyceTFH.', '1234567890', 'IL', 'leodoe', '62701'),
+(20, '123 Main St', 'Apt 4', 'Springfield', 'USA', 'joan.doe@example.com', 'Joan', 'Doe', '$2a$10$UAlAEuCGBoE2KEc2Orb/AOxKUsJglv56lPEmgsVH8qMjDVOuKEhdi', '1234567890', 'IL', 'joandoe', '62701'),
+(21, '9731 Fontainebleau Blvd, Apt 112', 'Apt 112', 'Miami', 'United States', 'nellytmedinav@hotmail.com', 'Nelly', 'Medina', '$2a$10$3uDW0mxzXwDodAMP0N9zKeQINyU1Kn.5NWRc9tTYrSjTlnhW3QbQ2', '7867647670', 'FL', 'nelly.medina', '33172');

@@ -10,11 +10,11 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.gymbuddy</groupId>
-    <artifactId>gymbuddy</artifactId>
+    <groupId>com.sforce</groupId>
+    <artifactId>sforcetrading</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gymbuddy</name>
-    <description>Gym Buddy Spring Boot</description>
+    <name>sforcetrading</name>
+    <description>SForce Trading Spring Boot</description>
 
     <properties>
         <java.version>17</java.version>

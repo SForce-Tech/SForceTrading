@@ -1,13 +1,13 @@
-### GymbuddyApplication.java
+### sforcetradingApplication.java
 
-**Package:** `com.sforce.gymbuddy`
+**Package:** `com.sforce.sforcetrading`
 
 - The main class that bootstraps the Spring Boot application.
-- Contains the `main` method which calls `SpringApplication.run(GymbuddyApplication.class, args)`.
+- Contains the `main` method which calls `SpringApplication.run(sforcetradingApplication.class, args)`.
 
 ### RSAKeyConfig.java
 
-**Package:** `com.sforce.gymbuddy.config`
+**Package:** `com.sforce.sforcetrading.config`
 
 - Configuration class for loading the RSA private key used for encryption and decryption.
 - **Fields:**
@@ -17,7 +17,7 @@
 
 ### SecurityConfiguration.java
 
-**Package:** `com.sforce.gymbuddy.config`
+**Package:** `com.sforce.sforcetrading.config`
 
 - Configuration class for Spring Security.
 - **Fields:**
@@ -32,7 +32,7 @@
 
 ### TomcatHttpRedirectConfig.java
 
-**Package:** `com.sforce.gymbuddy.config`
+**Package:** `com.sforce.sforcetrading.config`
 
 - Configuration class for redirecting HTTP requests to HTTPS using Tomcat.
 - **Methods:**
@@ -41,7 +41,7 @@
 
 ### WebConfig.java
 
-**Package:** `com.sforce.gymbuddy.config`
+**Package:** `com.sforce.sforcetrading.config`
 
 - Configuration class for CORS settings.
 - **Methods:**
@@ -49,7 +49,7 @@
 
 ### HomeController.java
 
-**Package:** `com.sforce.gymbuddy.controller`
+**Package:** `com.sforce.sforcetrading.controller`
 
 - Simple controller for handling the home endpoint.
 - **Methods:**
@@ -57,7 +57,7 @@
 
 ### PublicKeyController.java
 
-**Package:** `com.sforce.gymbuddy.controller`
+**Package:** `com.sforce.sforcetrading.controller`
 
 - Controller to expose the public key for encryption.
 - **Fields:**
@@ -67,7 +67,7 @@
 
 ### UserController.java
 
-**Package:** `com.sforce.gymbuddy.controller`
+**Package:** `com.sforce.sforcetrading.controller`
 
 - Controller for managing users.
 - **Fields:**
@@ -84,7 +84,7 @@
 
 ### UserCreateDTO.java
 
-**Package:** `com.sforce.gymbuddy.dto`
+**Package:** `com.sforce.sforcetrading.dto`
 
 - Data Transfer Object for user creation.
 - **Fields:**
@@ -92,7 +92,7 @@
 
 ### UserDTO.java
 
-**Package:** `com.sforce.gymbuddy.dto`
+**Package:** `com.sforce.sforcetrading.dto`
 
 - Data Transfer Object for user data transfer.
 - **Fields:**
@@ -100,7 +100,7 @@
 
 ### GlobalExceptionHandler.java
 
-**Package:** `com.sforce.gymbuddy.exception`
+**Package:** `com.sforce.sforcetrading.exception`
 
 - Global exception handler for handling exceptions across the application.
 - **Methods:**
@@ -109,7 +109,7 @@
 
 ### JwtRequestFilter.java
 
-**Package:** `com.sforce.gymbuddy.filter`
+**Package:** `com.sforce.sforcetrading.filter`
 
 - Filter for handling JWT validation on incoming requests.
 - **Fields:**
@@ -120,7 +120,7 @@
 
 ### User.java
 
-**Package:** `com.sforce.gymbuddy.model`
+**Package:** `com.sforce.sforcetrading.model`
 
 - Represents a user in the system.
 - **Fields:**
@@ -128,7 +128,7 @@
 
 ### UserRepository.java
 
-**Package:** `com.sforce.gymbuddy.repository`
+**Package:** `com.sforce.sforcetrading.repository`
 
 - Repository interface for CRUD operations on `User` entities.
 - **Methods:**
@@ -137,7 +137,7 @@
 
 ### CustomUserDetailsService.java
 
-**Package:** `com.sforce.gymbuddy.service`
+**Package:** `com.sforce.sforcetrading.service`
 
 - Service for loading user-specific data.
 - **Fields:**
@@ -147,7 +147,7 @@
 
 ### UserService.java
 
-**Package:** `com.sforce.gymbuddy.service`
+**Package:** `com.sforce.sforcetrading.service`
 
 - Service for managing users.
 - **Fields:**
@@ -165,7 +165,7 @@
 
 ### JwtUtil.java
 
-**Package:** `com.sforce.gymbuddy.util`
+**Package:** `com.sforce.sforcetrading.util`
 
 - Utility class for handling JWT operations.
 - **Fields:**
@@ -183,7 +183,7 @@
 
 ### RSAUtil.java
 
-**Package:** `com.sforce.gymbuddy.util`
+**Package:** `com.sforce.sforcetrading.util`
 
 - Utility class for RSA encryption and decryption.
 - **Methods:**

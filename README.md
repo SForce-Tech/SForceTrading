@@ -1,6 +1,6 @@
-# GymBuddy
+# SForce Trading
 
-GymBuddy is a Spring Boot application for managing users. It includes features for user registration, authentication, and user data management. The application uses Spring Security for authentication and authorization, Spring Data JPA for database access, and H2 as an in-memory database. HTTPS and RSA encryption are used for secure communication.
+SForce Trading is a Spring Boot application for managing users. It includes features for user registration, authentication, and user data management. The application uses Spring Security for authentication and authorization, Spring Data JPA for database access, and H2 as an in-memory database. HTTPS and RSA encryption are used for secure communication.
 
 ## Table of Contents
 
@@ -29,8 +29,8 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/gymbuddy.git
-   cd gymbuddy
+   git clone https://github.com/yourusername/sforcetrading.git
+   cd sforcetrading
    ```
 
 2. Build the project:
@@ -42,7 +42,7 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
 3. Run the application with the necessary environment variables:
 
    ```sh
-   KEY_STORE_PWD_GYMBUDDY=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run
+   KEY_STORE_PWD_sforcetrading=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run
    ```
 
 4. The application will be available at `https://localhost:8443`.
@@ -51,15 +51,15 @@ GymBuddy is a Spring Boot application for managing users. It includes features f
 
 - Access the H2 console at `https://localhost:8443/h2-console`
 - Use the following settings:
-  - **JDBC URL**: `jdbc:h2:file:./gymbuddy`
+  - **JDBC URL**: `jdbc:h2:file:./sforcetrading`
   - **User Name**: `SA`
   - **Password**: _(leave empty)_
 
 ## Project Structure
 
 ```plaintext
-src/main/java/com/sforce/gymbuddy
-├── GymbuddyApplication.java
+src/main/java/com/sforce/sforcetrading
+├── sforcetradingApplication.java
 ├── config
 │   ├── RSAKeyConfig.java
 │   ├── SecurityConfiguration.java
@@ -209,7 +209,7 @@ mvn test
 1. **Generate a Keystore**
 
    ```sh
-   keytool -genkeypair -alias gymbuddy -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 365
+   keytool -genkeypair -alias sforcetrading -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 365
    ```
 
 2. **Store the Keystore Securely**
@@ -219,16 +219,16 @@ mvn test
 3. **Set Environment Variables**
 
    ```sh
-   export KEY_STORE_PWD_GYMBUDDY=your_keystore_password
+   export KEY_STORE_PWD_sforcetrading=your_keystore_password
    ```
 
 4. **Update Application Properties**
 
    ```properties
    server.ssl.key-store=classpath:keystore.p12
-   server.ssl.key-store-password=${KEY_STORE_PWD_GYMBUDDY}
+   server.ssl.key-store-password=${KEY_STORE_PWD_sforcetrading}
    server.ssl.key-store-type=PKCS12
-   server.ssl.key-alias=gymbuddy
+   server.ssl.key-alias=sforcetrading
    server.port=8443
    ```
 
@@ -252,11 +252,11 @@ Use the provided Node.js script in the `scripts/getToken` directory to fetch the
 
 ## Postman Collection
 
-Import the provided Postman collection (`GymBuddy.postman_collection.json`) to test the API endpoints. Example requests include user registration, login, and fetching user details.
+Import the provided Postman collection (`sforcetrading.postman_collection.json`) to test the API endpoints. Example requests include user registration, login, and fetching user details.
 
 ## VSCode Tasks
 
-A `tasks.json` file is provided for running the GymBuddy application and tests in VSCode.
+A `tasks.json` file is provided for running the sforcetrading application and tests in VSCode.
 
 ```json
 {
@@ -264,14 +264,14 @@ A `tasks.json` file is provided for running the GymBuddy application and tests i
   "tasks": [
     {
       "type": "shell",
-      "label": "run gymbuddy",
-      "command": "KEY_STORE_PWD_GYMBUDDY=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run",
+      "label": "run sforcetrading",
+      "command": "KEY_STORE_PWD_sforcetrading=080654 JWT_SECRET_KEY=Mcb0-0886 mvn spring-boot:run",
       "problemMatcher": [],
       "isBackground": true
     },
     {
       "type": "shell",
-      "label": "test gymbuddy",
+      "label": "test sforcetrading",
       "command": "mvn test",
       "problemMatcher": []
     },
