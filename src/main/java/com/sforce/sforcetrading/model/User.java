@@ -43,6 +43,9 @@ public class User {
     private String zipCode;
     private String country;
 
+    private String etradeApiKey;
+    private String etradeApiSecret;
+
     // Getters and Setters
 
     /**
@@ -277,5 +280,41 @@ public class User {
      */
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    /**
+     * Gets the etradeApiKey of the user.
+     *
+     * @return the etradeApiKey of the user
+     */
+    public String getEtradeApiKey() {
+        return etradeApiKey;
+    }
+
+    /**
+     * Sets the etradeApiKey of the user.
+     *
+     * @param etradeApiKey the new etradeApiKey of the user
+     */
+    public void setEtradeApiKey(String etradeApiKey) {
+        this.etradeApiKey = etradeApiKey;
+    }
+
+    /**
+     * Gets the etradeApiSecret of the user.
+     *
+     * @return the etradeApiSecret of the user
+     */
+    public String getEtradeApiSecret() {
+        return etradeApiSecret;
+    }
+
+    /**
+     * Sets the etradeApiSecret of the user.
+     *
+     * @param etradeApiSecret the new etradeApiSecret of the user
+     */
+    public void setEtradeApiSecret(String etradeApiSecret) {
+        this.etradeApiSecret = etradeApiSecret;
     }
 }
