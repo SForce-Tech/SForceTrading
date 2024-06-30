@@ -9,6 +9,7 @@ public class ApiException extends IOException {
 	private int httpStatus;
 	private String code;
 	private String message;
+	private Exception exception;
 
 	public ApiException() {
 		super();
@@ -17,6 +18,12 @@ public class ApiException extends IOException {
 	public ApiException(String message) {
 		super();
 		this.message = message;
+	}
+
+	public ApiException(String message, Exception exception) {
+		super();
+		this.message = message;
+		this.exception = exception;
 	}
 
 	public ApiException(final int httpStatus, final String code, final String message) {

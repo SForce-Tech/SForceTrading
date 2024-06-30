@@ -10,7 +10,6 @@ import com.sforce.sforcetrading.etradeintegration.exception.ApiException;
 import com.sforce.sforcetrading.etradeintegration.oauth.model.Message;
 import com.sforce.sforcetrading.etradeintegration.oauth.model.OAuthToken;
 import com.sforce.sforcetrading.etradeintegration.oauth.model.SecurityContext;
-import com.sforce.sforcetrading.etradeintegration.terminal.KeyIn;
 
 public class AuthorizationService implements Receiver {
 
@@ -32,13 +31,7 @@ public class AuthorizationService implements Receiver {
 
 					Desktop.getDesktop().browse(new URI(url));
 
-					System.out.print("Enter Verification Code : ");
-
-					String code = KeyIn.getKeyInString();
-
-					log.debug("set code on to params " + code);
-
-					message.setVerifierCode(code);
+					message.setVerifierCode("code");
 
 					if (nextReceiver != null)
 						nextReceiver.handleMessage(message, context);

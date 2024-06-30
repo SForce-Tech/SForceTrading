@@ -1,17 +1,15 @@
 package com.sforce.sforcetrading.etradeintegration.clients.order;
 
-import static com.sforce.sforcetrading.etradeintegration.terminal.ETClientApp.lineSeperator;
-import static com.sforce.sforcetrading.etradeintegration.terminal.ETClientApp.out;
-
-import java.util.Formatter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Component;
 import com.sforce.sforcetrading.etradeintegration.clients.Client;
 import com.sforce.sforcetrading.etradeintegration.exception.ApiException;
 import com.sforce.sforcetrading.etradeintegration.oauth.AppController;
@@ -20,27 +18,17 @@ import com.sforce.sforcetrading.etradeintegration.oauth.model.ContentType;
 import com.sforce.sforcetrading.etradeintegration.oauth.model.Message;
 import com.sforce.sforcetrading.etradeintegration.oauth.model.OauthRequired;
 
-/*
- * Client fetches the order list for selected accountIdKey available with account list.
- * client uses oauth_token & oauth_token_secret to access protected resources that is available via oauth handshake.
- */
+@Component
 public class OrderClient extends Client {
 
 	@Autowired
-	AppController oauthManager;
+	private AppController oauthManager;
 
 	@Autowired
-	ApiResource apiResource;
+	private ApiResource apiResource;
 
-	public OrderClient() {
-	}
+	private Map<String, String> apiProperties;
 
-	Map<String, String> apiProperties;
-
-	/*
-	 * The HTTP request method used to send the request. Value MUST be uppercase,
-	 * for example: HEAD, GET , POST, etc
-	 */
 	@Override
 	public String getHttpMethod() {
 		return "GET";
@@ -52,8 +40,8 @@ public class OrderClient extends Client {
 	}
 
 	@Override
-	public String getURL(String accountIdkKey) {
-		return String.format("%s%s%s", getURL(), accountIdkKey, "/orders");
+	public String getURL(String accountIdKey) {
+		return String.format("%s%s/orders", getURL(), accountIdKey);
 	}
 
 	@Override
@@ -66,8 +54,7 @@ public class OrderClient extends Client {
 	}
 
 	public String getOrders(final String accountIdKey) throws ApiException {
-
-		log.debug(" Calling OrderList API " + getURL(accountIdKey));
+		log.debug("Calling OrderList API " + getURL(accountIdKey));
 
 		Message message = new Message();
 		message.setOauthRequired(OauthRequired.YES);
@@ -78,7 +65,8 @@ public class OrderClient extends Client {
 		return oauthManager.invoke(message);
 	}
 
-	public void parseResponse(final String response) throws Exception {
+	public List<OrderDetail> parseResponse(final String response) throws Exception {
+		List<OrderDetail> ordersList = new ArrayList<>();
 
 		JSONParser jsonParser = new JSONParser();
 		JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
@@ -88,101 +76,38 @@ public class OrderClient extends Client {
 
 		if (jsonObject.get("OrdersResponse") != null) {
 			orderData = (JSONArray) orderResponse.get("Order");
-			Object[] responseData = new Object[15];
-			Iterator orderItr = orderData.iterator();
-
-			String titleFormat = new StringBuilder("%10s %25s %25s %13s %10s %10s %15s %25s %15s %25s %15s")
-					.append(System.lineSeparator()).append(System.lineSeparator()).toString();
-
-			out.printf(titleFormat, "Date", "OrderId", "Type", "Action", "Qty", "Symbol", "Type", "Term", "Price",
-					"Executed", "Status");
-			StringBuilder sbuf = new StringBuilder();
-			Formatter fmt = new Formatter(sbuf);
-			while (orderItr.hasNext()) {
-
-				JSONObject order = (JSONObject) orderItr.next();
-
-				JSONArray orderDetailArr = (JSONArray) order.get("OrderDetail");
-
-				Iterator orderdDetailItr = orderDetailArr.iterator();
-
-				JSONObject orderDetail = (JSONObject) orderdDetailItr.next();
-
+			for (Object orderObj : orderData) {
+				JSONObject order = (JSONObject) orderObj;
+				JSONObject orderDetail = (JSONObject) ((JSONArray) order.get("OrderDetail")).get(0);
 				JSONArray orderInstArr = (JSONArray) orderDetail.get("Instrument");
-				Iterator orderdInstItr = orderInstArr.iterator();
 
-				while (orderdInstItr.hasNext()) {
-					sbuf.delete(0, sbuf.length());
-					StringBuilder formatString = new StringBuilder("");
-
-					JSONObject instrument = (JSONObject) orderdInstItr.next();
+				for (Object instObj : orderInstArr) {
+					JSONObject instrument = (JSONObject) instObj;
 					JSONObject product = (JSONObject) instrument.get("Product");
-					;
 
-					// placed date
-					responseData[0] = OrderUtil.convertLongToDate((Long) orderDetail.get("placedTime"));
-					formatString.append("%10s");
+					OrderDetail orderDetailObj = new OrderDetail();
+					orderDetailObj.setDate(OrderUtil.convertLongToDate((Long) orderDetail.get("placedTime")));
+					orderDetailObj.setOrderId(order.get("orderId").toString());
+					orderDetailObj.setType(order.get("orderType").toString());
+					orderDetailObj.setAction(instrument.get("orderAction").toString());
+					orderDetailObj.setQty(instrument.get("orderedQuantity").toString());
+					orderDetailObj.setSymbol(product.get("symbol").toString());
+					orderDetailObj.setPriceType(
+							PriceType.getPriceType(String.valueOf(orderDetail.get("priceType"))).getValue());
+					orderDetailObj.setTerm(
+							OrderUtil.getTerm(OrderTerm.getOrderTerm(String.valueOf(orderDetail.get("orderTerm")))));
+					orderDetailObj.setPrice(OrderUtil.getPrice(
+							PriceType.getPriceType(String.valueOf(orderDetail.get("priceType"))), orderDetail));
+					orderDetailObj.setExecuted(instrument.containsKey("averageExecutionPrice")
+							? instrument.get("averageExecutionPrice").toString()
+							: "-");
+					orderDetailObj.setStatus(orderDetail.get("status").toString());
 
-					responseData[1] = order.get("orderId");
-					;
-					formatString.append("%25d");
-
-					responseData[2] = order.get("orderType");
-					;
-					formatString.append("%25s");
-
-					responseData[3] = instrument.get("orderAction");
-					;
-					formatString.append("%15s");
-
-					responseData[4] = instrument.get("orderedQuantity");
-					;
-					formatString.append("%10d");
-
-					responseData[5] = product.get("symbol");
-					;
-					formatString.append("%10s");
-
-					responseData[6] = (PriceType.getPriceType(String.valueOf(orderDetail.get("priceType")))).getValue();
-					formatString.append("%20s");
-
-					responseData[7] = OrderUtil
-							.getTerm((OrderTerm.getOrderTerm(String.valueOf(orderDetail.get("orderTerm")))));
-					formatString.append("%25s");
-
-					responseData[8] = OrderUtil.getPrice(
-							PriceType.getPriceType(String.valueOf(orderDetail.get("priceType"))), orderDetail);
-					formatString.append("%15s");
-
-					if (instrument.containsKey("averageExecutionPrice")) {
-						if (Double.class.isAssignableFrom(instrument.get("averageExecutionPrice").getClass())) {
-							responseData[9] = String.valueOf(instrument.get("averageExecutionPrice"));
-							formatString.append("%25s");
-						} else {
-							responseData[9] = String.valueOf(instrument.get("averageExecutionPrice"));
-							formatString.append("%25s");
-						}
-					} else {
-						responseData[9] = "-";
-						formatString.append("%25s");
-					}
-
-					responseData[10] = orderDetail.get("status");
-					;
-					formatString.append("%15s").append(lineSeperator);
-
-					fmt.format(formatString.toString(), responseData[0], responseData[1], responseData[2],
-							responseData[3], responseData[4], responseData[5], responseData[6], responseData[7],
-							responseData[8], responseData[9], responseData[10]);
-					out.println(sbuf.toString());
-
-					out.println();
-					out.println();
+					ordersList.add(orderDetailObj);
 				}
-
 			}
-
 		}
-	}
 
+		return ordersList;
+	}
 }

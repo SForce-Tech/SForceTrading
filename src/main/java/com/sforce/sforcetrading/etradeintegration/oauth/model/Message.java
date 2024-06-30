@@ -1,8 +1,5 @@
 package com.sforce.sforcetrading.etradeintegration.oauth.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
