@@ -1,0 +1,94 @@
+{
+  "properties": [
+    {
+      "name": "oauth.baseUrl",
+      "type": "java.lang.String",
+      "description": "The base URL for the E*TRADE OAuth API.",
+      "defaultValue": "https://apisb.etrade.com"
+    },
+    {
+      "name": "oauth.authorizeUrl",
+      "type": "java.lang.String",
+      "description": "The URL for authorizing the application with E*TRADE.",
+      "defaultValue": "https://us.etrade.com/e/t/etws/authorize"
+    },
+    {
+      "name": "oauth.accessUrl",
+      "type": "java.lang.String",
+      "description": "The URL for obtaining the OAuth access token.",
+      "defaultValue": "/oauth/access_token"
+    },
+    {
+      "name": "oauth.tokenUrl",
+      "type": "java.lang.String",
+      "description": "The URL for obtaining the OAuth request token.",
+      "defaultValue": "/oauth/request_token"
+    },
+    {
+      "name": "oauth.consumerKey",
+      "type": "java.lang.String",
+      "description": "The consumer key used to identify the application to E*TRADE.",
+      "defaultValue": "b82f1480faf7c92e49c9e6a031dc7fda"
+    },
+    {
+      "name": "oauth.secretKey",
+      "type": "java.lang.String",
+      "description": "The secret key used to sign OAuth requests.",
+      "defaultValue": "e8346f03a502fb6283dcb5fd27b6f98a07c234d81bd2b0c6cef093bfd34c4559"
+    },
+    {
+      "name": "oauth.callback",
+      "type": "java.lang.String",
+      "description": "The callback URL for the OAuth authorization process.",
+      "defaultValue": "oob"
+    },
+    {
+      "name": "api.baseUrl",
+      "type": "java.lang.String",
+      "description": "The base URL for the E*TRADE API.",
+      "defaultValue": "https://apisb.etrade.com"
+    },
+    {
+      "name": "api.accountListUri",
+      "type": "java.lang.String",
+      "description": "The URI for retrieving the account list.",
+      "defaultValue": "/v1/accounts/list"
+    },
+    {
+      "name": "api.balanceUri",
+      "type": "java.lang.String",
+      "description": "The base URI for retrieving account balances.",
+      "defaultValue": "/v1/accounts/"
+    },
+    {
+      "name": "api.balanceUri.queryParam",
+      "type": "java.lang.String",
+      "description": "Query parameters for retrieving account balances.",
+      "defaultValue": "instType=BROKERAGE&realTimeNAV=true"
+    },
+    {
+      "name": "api.portfolioUri",
+      "type": "java.lang.String",
+      "description": "The URI for retrieving portfolio information.",
+      "defaultValue": "/v1/accounts/"
+    },
+    {
+      "name": "api.quoteUri",
+      "type": "java.lang.String",
+      "description": "The URI for retrieving market quotes.",
+      "defaultValue": "/v1/market/quote/"
+    },
+    {
+      "name": "api.accountsUri",
+      "type": "java.lang.String",
+      "description": "The URI for retrieving account details.",
+      "defaultValue": "/v1/accounts/"
+    },
+    {
+      "name": "api.orderUri",
+      "type": "java.lang.String",
+      "description": "The URI for placing and managing orders.",
+      "defaultValue": "/v1/accounts/"
+    }
+  ]
+}
